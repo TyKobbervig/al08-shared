@@ -1,9 +1,7 @@
 from collections import deque
 
-from network_support import (
-    validate_request,
-    record_step,
-)
+from network_data import GRAPH, START, GOAL, RESTRICTIONS
+from network_support import validate_request, record_step
 
 
 def breadth_first(graph, start):
@@ -73,7 +71,7 @@ def depth_first(graph, start):
 
 def reconstruct_path(parents, goal):
     """
-    Follow parent links back to start and return the route.
+    Follow parent links back to start and return a start-to-goal path.
     """
     path = []
 
@@ -89,7 +87,7 @@ def reconstruct_path(parents, goal):
 
 def shortest_hop_path(graph, start, goal, blocked=()):
     """
-    Return the fewest-hop route using BFS.
+    Return the fewest-hop path using BFS.
     Return (path, parents) or (None, parents).
     """
     blocked = set(blocked)
@@ -120,3 +118,52 @@ def shortest_hop_path(graph, start, goal, blocked=()):
                     return reconstruct_path(parents, goal), parents
 
     return None, parents
+
+
+def main():
+    """Run the workshop planner."""
+
+    print("=== Breadth First Search ===")
+    order, trace, edges = breadth_first(GRAPH, START)
+
+    print("Visit order:")
+    print(order)
+
+    print("Rooms reached:", len(order))
+    print("Edges examined:", edges)
+
+    print("\n=== Depth First Search ===")
+    order, trace, edges = depth_first(GRAPH, START)
+
+    print("Visit order:")
+    print(order)
+
+    print("Rooms reached:", len(order))
+    print("Edges examined:", edges)
+
+    print("\n=== Baseline Route ===")
+    path, parents = shortest_hop_path(
+        GRAPH,
+        START,
+        GOAL,
+    )
+
+    print("Path:", path)
+
+    print("\n=== Restriction Cases ===")
+
+    for case, info in RESTRICTIONS.items():
+        path, parents = shortest_hop_path(
+            GRAPH,
+            START,
+            GOAL,
+            info["blocked"],
+        )
+
+        print(f"\nCase {case}: {info['label']}")
+        print("Blocked:", info["blocked"])
+        print("Path:", path)
+
+
+if __name__ == "__main__":
+    main()
